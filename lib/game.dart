@@ -8,12 +8,12 @@ import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:sensors/sensors.dart';
+import 'package:vibration/vibration.dart';
 
 class GameRoute extends StatefulWidget {
-  final WebSocketChannel channel;
   final String roomId;
 
-  GameRoute({Key key, @required this.roomId, @required this.channel}): super(key: key);
+  GameRoute({Key key, @required this.roomId}): super(key: key);
 
   @override
   _GameRouteState createState() => _GameRouteState();
@@ -24,23 +24,32 @@ class _GameRouteState extends State<GameRoute> {
   double _swingIntegral = 0;
   Timer _swingTimer;
   bool timeOut = false;
+  WebSocketChannel channel;
 
-  // @override
-  // void initState() {
-  //   super.initState();
+  @override
+  void initState() {
+    super.initState();
 
-  //   // Bind listeners
-  //   _accelerometerSubscription = accelerometerEvents
-  //     .map((event) => pow(event.x, 2) + pow(event.y, 2) + pow(event.z, 2))
-  //     //.where((event) => event > 500)
-  //     .distinct()
-  //     .listen(handleSwing);
-  // }
+    // Bind listeners
+    _accelerometerSubscription = accelerometerEvents
+      .map((event) => pow(event.x, 2) + pow(event.y, 2) + pow(event.z, 2))
+      //.where((event) => event > 500)
+      .distinct()
+      .listen(handleSwing);
+    channel = IOWebSocketChannel.connect('ws://$BACKEND_HOST/ws/rooms/${widget.roomId}/');
+  }
 
   sendSwing(String strength) {
     if (!timeOut) {
       print(strength);
-      widget.channel.sink.add('{"action": "$strength"}');
+      channel.sink.add('{"action": "$strength"}');
+
+      if (strength == 'soft') {
+        Vibration.vibrate(duration: 250);
+      } else {
+        Vibration.vibrate(duration: 750);
+      }
+
       timeOut = true;
       Timer(Duration(seconds: 1), () {
         timeOut = false;
@@ -91,15 +100,14 @@ class _GameRouteState extends State<GameRoute> {
             icon: Icon(Icons.refresh),
             iconSize: 16.0,
             onPressed: () {
-              // Navigator.pushReplacement(
-              //   context,
-              //   MaterialPageRoute(
-              //     builder: (context) => GameRoute(
-              //       roomId: widget.roomId,
-              //       channel: IOWebSocketChannel.connect('ws://$BACKEND_HOST/ws/rooms/${widget.roomId}')
-              //     )
-              //   )
-              // );
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => GameRoute(
+                    roomId: widget.roomId,
+                  )
+                )
+              );
             }
           )
         ]
@@ -111,20 +119,19 @@ class _GameRouteState extends State<GameRoute> {
 
   @override
   Widget build(BuildContext context) {
-    return Text('hi');
-    // return Scaffold(
-    //   body: Center(
-    //     child: StreamBuilder(
-    //       stream: widget.channel.stream,
-    //       builder: buildFromWS,
-    //     ),
-    //   )
-    // );
+    return Scaffold(
+      body: Center(
+        child: StreamBuilder(
+          stream: channel.stream,
+          builder: buildFromWS,
+        ),
+      )
+    );
   }
 
   @override
   void dispose() {
-    widget.channel.sink.close();
+    channel.sink.close();
     _accelerometerSubscription.cancel();
     super.dispose();
   }

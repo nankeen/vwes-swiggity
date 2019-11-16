@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:swiggity/config.dart';
 import 'package:swiggity/game.dart';
-import 'package:web_socket_channel/io.dart';
 
 class JoinRoom extends StatefulWidget {
   JoinRoom({Key key}) : super(key: key);
@@ -35,7 +33,6 @@ class _JoinRoomState extends State<JoinRoom> {
       MaterialPageRoute(
         builder: (context) => GameRoute(
           roomId: _roomIdController.text,
-          channel: IOWebSocketChannel.connect('ws://$BACKEND_HOST/ws/rooms/${_roomIdController.text}/')
         ),
       )
     );

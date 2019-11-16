@@ -26,6 +26,7 @@ dependencies:
   sensors: ^0.4.1+1
   web_socket_channel: ^1.1.0
   flutter_spinkit: "^4.0.0"
+  vibration: 1.2.2
 
 dev_dependencies:
   flutter_test:
