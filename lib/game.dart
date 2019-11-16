@@ -23,32 +23,48 @@ class _GameRouteState extends State<GameRoute> {
   StreamSubscription _accelerometerSubscription;
   double _swingIntegral = 0;
   Timer _swingTimer;
+  bool timeOut = false;
 
-  @override
-  void initState() {
-    super.initState();
+  // @override
+  // void initState() {
+  //   super.initState();
 
-    // Bind listeners
-    _accelerometerSubscription = accelerometerEvents
-      .map((event) => pow(event.x, 2) + pow(event.y, 2) + pow(event.z, 2))
-      //.where((event) => event > 500)
-      .listen(handleSwing);
+  //   // Bind listeners
+  //   _accelerometerSubscription = accelerometerEvents
+  //     .map((event) => pow(event.x, 2) + pow(event.y, 2) + pow(event.z, 2))
+  //     //.where((event) => event > 500)
+  //     .distinct()
+  //     .listen(handleSwing);
+  // }
+
+  sendSwing(String strength) {
+    if (!timeOut) {
+      print(strength);
+      widget.channel.sink.add('{"action": "$strength"}');
+      timeOut = true;
+      Timer(Duration(seconds: 1), () {
+        timeOut = false;
+        _swingIntegral = 0;
+      });
+    }
   }
 
-  handleSwing(magnitudeSquared) {
-    _swingIntegral = magnitudeSquared;
+  handleSwing(num magnitudeSquared) {
+    if (magnitudeSquared > 500) {
+      _swingIntegral += magnitudeSquared;
+    }
     if (_swingTimer == null || !_swingTimer.isActive) {
       _swingTimer = Timer(Duration(milliseconds: 100), () {
-        if (_swingIntegral > 1500) {
-          print('Soft swing');
+        if (_swingIntegral > 2000) {
+          sendSwing('soft');
         }
         _swingIntegral = 0;
       });
     }
 
-    if (_swingIntegral > 5000) {
-      print('Hard swing');
+    if (_swingIntegral > 10000) {
       _swingTimer.cancel();
+      sendSwing('hard');
       _swingIntegral = 0;
     }
   }
@@ -75,15 +91,15 @@ class _GameRouteState extends State<GameRoute> {
             icon: Icon(Icons.refresh),
             iconSize: 16.0,
             onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => GameRoute(
-                    roomId: widget.roomId,
-                    channel: IOWebSocketChannel.connect('ws://$BACKEND_HOST/${widget.roomId}')
-                  )
-                )
-              );
+              // Navigator.pushReplacement(
+              //   context,
+              //   MaterialPageRoute(
+              //     builder: (context) => GameRoute(
+              //       roomId: widget.roomId,
+              //       channel: IOWebSocketChannel.connect('ws://$BACKEND_HOST/ws/rooms/${widget.roomId}')
+              //     )
+              //   )
+              // );
             }
           )
         ]
@@ -95,14 +111,15 @@ class _GameRouteState extends State<GameRoute> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: StreamBuilder(
-          stream: widget.channel.stream,
-          builder: buildFromWS,
-        ),
-    )
-    );
+    return Text('hi');
+    // return Scaffold(
+    //   body: Center(
+    //     child: StreamBuilder(
+    //       stream: widget.channel.stream,
+    //       builder: buildFromWS,
+    //     ),
+    //   )
+    // );
   }
 
   @override

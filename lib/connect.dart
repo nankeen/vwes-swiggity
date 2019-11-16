@@ -35,7 +35,7 @@ class _JoinRoomState extends State<JoinRoom> {
       MaterialPageRoute(
         builder: (context) => GameRoute(
           roomId: _roomIdController.text,
-          channel: IOWebSocketChannel.connect('ws://$BACKEND_HOST/${_roomIdController.text}')
+          channel: IOWebSocketChannel.connect('ws://$BACKEND_HOST/ws/rooms/${_roomIdController.text}/')
         ),
       )
     );

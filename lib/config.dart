@@ -1,1 +1,1 @@
-const String BACKEND_HOST = '10.10.14.74';
+const String BACKEND_HOST = 'vwes-backend.uksouth.azurecontainer.io';
