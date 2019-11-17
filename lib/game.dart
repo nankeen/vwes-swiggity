@@ -79,20 +79,9 @@ class _GameRouteState extends State<GameRoute> {
   }
 
   Widget buildFromWS(BuildContext context, AsyncSnapshot snapshot) {
-    if (!snapshot.hasData) {
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          SpinKitWave(
-            color: Colors.accents[0],
-            size: 70.0,
-          ),
-          Text('Joining ${widget.roomId}')
-        ]
-      );
-    }
     if (snapshot.hasError) {
       return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Icon(Icons.error),
           Text('Can\'t join the room. Retry?'),
@@ -110,6 +99,18 @@ class _GameRouteState extends State<GameRoute> {
               );
             }
           )
+        ]
+      );
+    }
+    if (!snapshot.hasData) {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          SpinKitWave(
+            color: Colors.accents[0],
+            size: 70.0,
+          ),
+          Text('Joining ${widget.roomId}')
         ]
       );
     }

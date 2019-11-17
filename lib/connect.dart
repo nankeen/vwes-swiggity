@@ -16,7 +16,6 @@ class _JoinRoomState extends State<JoinRoom> {
       return 'Please enter a room ID';
     }
 
-    // TODO: Make request to backend and verify that the room exists
     return null;
   }
 
@@ -49,6 +48,7 @@ class _JoinRoomState extends State<JoinRoom> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 TextField(
+                  keyboardType: TextInputType.number,
                   controller: _roomIdController,
                   decoration: InputDecoration(
                     hintText: 'Join a room with its ID',
