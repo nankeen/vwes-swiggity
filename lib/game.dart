@@ -41,7 +41,6 @@ class _GameRouteState extends State<GameRoute> {
 
   sendSwing(String strength) {
     if (!timeOut) {
-      print(strength);
       channel.sink.add('{"action": "$strength"}');
 
       if (strength == 'soft') {
